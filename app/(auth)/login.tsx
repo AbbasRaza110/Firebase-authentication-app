@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Text, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Alert,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import {
   confirmCode,
   signInWithPhone,
@@ -18,24 +28,19 @@ export default function Login() {
     try {
       setLoading(true);
       setError("");
-
-      // Format the phone number
       const formattedPhone = formatPhoneNumber(phone);
 
-      // Validate the phone number
       if (!isValidPhoneNumber(formattedPhone)) {
-        setError(
-          "Please enter a valid phone number with country code (e.g., +1234567890)"
-        );
+        setError("Enter valid number with country code (e.g. +1234567890)");
         return;
       }
 
       const conf = await signInWithPhone(formattedPhone);
       setConfirmation(conf);
-      setPhone(formattedPhone); // Update the input with formatted number
+      setPhone(formattedPhone);
     } catch (err: any) {
-      setError(err.message || "Failed to send verification code");
-      Alert.alert("Error", err.message || "Failed to send verification code");
+      setError(err.message || "Failed to send code");
+      Alert.alert("Error", err.message || "Failed to send code");
     } finally {
       setLoading(false);
     }
@@ -45,120 +50,187 @@ export default function Login() {
     try {
       setLoading(true);
       setError("");
-
       if (confirmation) {
-        console.log("Confirmation:", confirmation);
-
         const user = await confirmCode(confirmation, code);
         console.log("Logged in:", user.phoneNumber);
       }
     } catch (err: any) {
-      setError(err.message || "Failed to verify code");
-      Alert.alert("Error", err.message || "Failed to verify code");
+      setError(err.message || "Invalid verification code");
+      Alert.alert("Error", err.message || "Invalid verification code");
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <View style={styles.container}>
-      {!confirmation ? (
-        <>
-          <Text style={styles.title}>Sign in with Phone Number </Text>
-          <Text style={styles.subtitle}>
-            Enter your phone number with country code (e.g., +1234567890)
-          </Text>
-          <TextInput
-            style={[styles.input, error && styles.inputError]}
-            placeholder="+1234567890"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={(text) => {
-              setPhone(text);
-              setError(""); // Clear error when user types
-            }}
-            editable={!loading}
-          />
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <Button
-            title={loading ? "Sending..." : "Send Code"}
-            onPress={sendCode}
-            disabled={loading || !phone.trim()}
-            color={"#2158BC"}
-          />
-        </>
-      ) : (
-        <>
-          <Text style={styles.title}>Enter Verification Code</Text>
-          <Text style={styles.subtitle}>
-            We sent a verification code to {phone}
-          </Text>
-          <TextInput
-            style={[styles.input, error && styles.inputError]}
-            placeholder="123456"
-            keyboardType="number-pad"
-            value={code}
-            onChangeText={(text) => {
-              setCode(text);
-              setError(""); // Clear error when user types
-            }}
-            editable={!loading}
-            maxLength={6}
-          />
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <Button
-            title={loading ? "Verifying..." : "Verify Code"}
-            onPress={verifyCode}
-            disabled={loading || !code.trim()}
-          />
-          <Button
-            title="Change Phone Number"
-            onPress={() => {
-              setConfirmation(null);
-              setCode("");
-              setError("");
-            }}
-            disabled={loading}
-          />
-        </>
-      )}
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <View style={styles.container}>
+        <Text style={styles.logo}>🔥 MyApp</Text>
+        <View style={styles.card}>
+          {!confirmation ? (
+            <>
+              <Text style={styles.title}>Phone Sign-In</Text>
+              <Text style={styles.subtitle}>
+                Enter your phone number with country code
+              </Text>
+
+              <TextInput
+                style={[styles.input, error && styles.inputError]}
+                placeholder="+1234567890"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={(t) => {
+                  setPhone(t);
+                  setError("");
+                }}
+                editable={!loading}
+              />
+
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+
+              <TouchableOpacity
+                style={[styles.button, loading && styles.disabled]}
+                onPress={sendCode}
+                disabled={loading || !phone.trim()}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Send Code</Text>
+                )}
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.title}>Verify Code</Text>
+              <Text style={styles.subtitle}>
+                Code sent to <Text style={styles.phone}>{phone}</Text>
+              </Text>
+
+              <TextInput
+                style={[styles.input, error && styles.inputError]}
+                placeholder="123456"
+                keyboardType="number-pad"
+                value={code}
+                maxLength={6}
+                onChangeText={(t) => {
+                  setCode(t);
+                  setError("");
+                }}
+                editable={!loading}
+              />
+
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+
+              <TouchableOpacity
+                style={[styles.button, loading && styles.disabled]}
+                onPress={verifyCode}
+                disabled={loading || !code.trim()}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Verify</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setConfirmation(null);
+                  setCode("");
+                  setError("");
+                }}
+                disabled={loading}
+              >
+                <Text style={styles.link}>Change Phone Number</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: "#f7f9fc",
     justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  logo: {
+    fontSize: 34,
+    fontWeight: "700",
+    marginBottom: 20,
+    color: "#2158BC",
+  },
+  card: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: "600",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: "center",
-    marginBottom: 20,
     color: "#666",
+    marginBottom: 20,
+  },
+  phone: {
+    color: "#2158BC",
+    fontWeight: "500",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    marginVertical: 10,
+    borderColor: "#ccc",
+    borderRadius: 10,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#fff",
+    marginBottom: 12,
   },
   inputError: {
-    borderColor: "#ff4444",
+    borderColor: "#ff4d4d",
   },
-  errorText: {
-    color: "#ff4444",
-    fontSize: 14,
-    marginBottom: 10,
+  button: {
+    backgroundColor: "#2158BC",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  link: {
     textAlign: "center",
+    color: "#2158BC",
+    marginTop: 15,
+    fontWeight: "500",
+  },
+  error: {
+    color: "#ff4d4d",
+    textAlign: "center",
+    marginBottom: 10,
   },
 });
