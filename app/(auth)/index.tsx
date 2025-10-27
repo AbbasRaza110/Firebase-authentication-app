@@ -68,11 +68,11 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.container}>
-        <Text style={styles.logo}>🔥 MyApp</Text>
+        <Text style={styles.logo}>🔥 Firebase Phone Auth</Text>
         <View style={styles.card}>
           {!confirmation ? (
             <>
-              <Text style={styles.title}>Phone Sign-In</Text>
+              <Text style={styles.title}>Sign-In</Text>
               <Text style={styles.subtitle}>
                 Enter your phone number with country code
               </Text>

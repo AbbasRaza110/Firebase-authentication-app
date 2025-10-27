@@ -1,18 +1,9 @@
-import { router, Stack } from "expo-router";
-import { useEffect } from "react";
+import { Stack } from "expo-router";
 
 export default function AuthLayout() {
-  const isAuth = false;
-
-  useEffect(() => {
-    if (isAuth) {
-      router.replace("/(app)/home");
-    }
-  }, []);
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
+      <Stack.Screen name="index" />
     </Stack>
   );
 }

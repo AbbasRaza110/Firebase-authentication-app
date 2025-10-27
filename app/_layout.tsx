@@ -1,5 +1,6 @@
-import { Slot, router } from "expo-router";
-import { useEffect, useState } from "react";
+import { Slot, useRouter } from "expo-router";
+import { useState, useEffect } from "react";
+import { View, ActivityIndicator, Text } from "react-native";
 import {
   SafeAreaProvider,
   initialWindowMetrics,
@@ -7,17 +8,20 @@ import {
 import auth from "@react-native-firebase/auth";
 
 export default function RootLayout() {
-  const [initializing, setInitializing] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
-      router.replace(user ? "/(app)/home.tsx" : "/(auth)/login.tsx");
-      setInitializing(false);
+      console.log("Auth state changed:", user ? "User logged in" : "No user");
+
+      if (user) {
+        router.replace("/(app)/home");
+      } else {
+        router.replace("/");
+      }
     });
     return unsubscribe;
   }, []);
-
-  if (initializing) return null;
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
