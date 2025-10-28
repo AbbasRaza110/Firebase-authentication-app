@@ -16,6 +16,7 @@ A React Native app built with Expo that implements Firebase phone number authent
 Before running this project, make sure you have the following installed:
 
 - **Node.js** (v16 or higher)
+- \*\*Cocoapods (v1.16.2 or higher)
 - **Yarn** or **npm** package manager
 - **Expo CLI** (`npm install -g @expo/cli`)
 - **Firebase project** with Authentication enabled
@@ -30,17 +31,7 @@ Before running this project, make sure you have the following installed:
    - Create a new project or use an existing one
    - Enable Authentication and select "Phone" as a sign-in method
 
-2. **Configure Android**
-
-   - Download `google-services.json` from Firebase Console
-   - Place it in the `android/app/` directory (already included)
-
-3. **Configure iOS**
-
-   - Download `GoogleService-Info.plist` from Firebase Console
-   - Place it in the `ios/firebasephoneauth/` directory (already included)
-
-4. **Enable Phone Authentication**
+2. **Enable Phone Authentication**
    - In Firebase Console, go to Authentication > Sign-in method
    - Enable "Phone" provider
    - Add your app's SHA-1 fingerprint for Android (optional for development)
@@ -100,15 +91,19 @@ Before running this project, make sure you have the following installed:
 
 ### Production Build
 
+### Before running build for both ios and android make sure to run:
+
+- npx expo prebuild
+
 1. **Build for Android**
 
    ```bash
-   expo build:android
+   npx expo run:android
    ```
 
 2. **Build for iOS**
    ```bash
-   expo build:ios
+   npx expo run:ios
    ```
 
 ## Project Structure
